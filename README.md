@@ -70,8 +70,12 @@ plt.show()
 ![image](https://github.com/user-attachments/assets/341208c9-baf3-479e-9b14-e547d92d1371)
  
 # RESULT / CONCLUSIONS
+
 1. Successfully simulated a simple spread spectrum modulation technique.
+
 
 2. Observed the randomization effect on the original data through the spread signal.
 
+
 3. Learned how spreading a signal increases its bandwidth and provides robustness against interference.
+
