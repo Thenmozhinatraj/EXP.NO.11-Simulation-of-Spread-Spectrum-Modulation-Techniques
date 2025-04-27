@@ -6,6 +6,7 @@
 To simulate and analyze spread spectrum modulation techniques using Python by generating original data, performing modulation/demodulation, and spreading the signal.
 
 # SOFTWARE REQUIRED
+
 ->Python 3.x
 
 ->Libraries: NumPy, Matplotlib
