@@ -35,52 +35,93 @@ To simulate and analyze spread spectrum modulation techniques using Python by ge
    Plot the Spread Signal.
 
 # PROGRAM
+```python
 import numpy as np
- 
 import matplotlib.pyplot as plt
 
-np.random.seed(0) 							
+# System Parameters
+data_length = 4                # Number of bits
+chips_per_bit = 8              # PN sequence length
+bit_rate = 1e3                 # 1 kbps
+chip_rate = bit_rate * chips_per_bit
+carrier_freq = 20e3            # 20 kHz carrier
+sample_rate = 160e3            # 160 kHz sampling rate
+samples_per_chip = int(sample_rate / chip_rate)
 
-original_data = np.random.randint(0, 2, 1000)  # Random 0s and 1s
+# Generate random binary data
+def generate_data(length):
+    return np.random.randint(0, 2, length)
 
-demodulated_signal = np.cumsum(original_data)
+# Generate PN sequence: ±1 chips
+def generate_pn_sequence(length):
+    return np.random.choice([-1, 1], length)
 
-spread_signal = 2 * original_data - 1  # Map 0 -> -1, 1 -> 1
+# BPSK mapping: 0 → -1, 1 → +1
+def bpsk_modulate(bit):
+    return 2 * bit - 1
 
-spread_signal = spread_signal * np.random.choice([-1, 1], size=1000)
+# DSSS spreading
+def dsss_spread(data, pn_sequence):
+    spread = []
+    for bit in data:
+        bpsk_bit = bpsk_modulate(bit)
+        spread.extend(bpsk_bit * pn_sequence)
+    return np.array(spread)
 
-fig, axs = plt.subplots(3, 1, figsize=(12, 6))
+# BPSK carrier modulation of spread signal
+def carrier_modulate(spread_signal, carrier_freq, sample_rate, samples_per_chip):
+    total_samples = len(spread_signal) * samples_per_chip
+    t = np.arange(total_samples) / sample_rate
+    carrier_wave = np.cos(2 * np.pi * carrier_freq * t)
+    
+    # Repeat each chip to match carrier sampling
+    chip_samples = np.repeat(spread_signal, samples_per_chip)
+    return chip_samples * carrier_wave, t
 
-axs[0].plot(original_data, color='blue')
+# Main function
+if __name__ == "__main__":
+    # Generate input
+    data = generate_data(data_length)
+    pn_seq = generate_pn_sequence(chips_per_bit)
 
-axs[0].set_title('Original Data')
+    print("Original Data Bits:     ", data)
+    print("PN Sequence:            ", pn_seq)
+    # DSSS spreading
+    spread_signal = dsss_spread(data, pn_seq)
 
-axs[1].plot(demodulated_signal, color='blue')
+    # BPSK Carrier modulation
+    bpsk_waveform, t = carrier_modulate(spread_signal, carrier_freq, sample_rate, samples_per_chip)
 
-axs[1].set_title('Demodulated Signal')
+    # Plot DSSS spread signal (chip values)
+    plt.figure(figsize=(12, 3))
+    plt.plot(spread_signal, drawstyle='steps-mid')
+    plt.title("DSSS Spread Signal (Baseband)")
+    plt.xlabel("Chip Index")
+    plt.ylabel("Amplitude")
+    plt.grid(True)
+    plt.tight_layout()
 
-axs[2].plot(spread_signal, color='blue')
+    # Plot BPSK modulated carrier waveform
+    plt.figure(figsize=(12, 3))
+    plt.plot(t, bpsk_waveform)
+    plt.title("BPSK Modulated Waveform (Carrier)")
+    plt.xlabel("Time (s)")
+    plt.ylabel("Amplitude")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
 
-axs[2].set_title('Spread Signal')
-
-plt.tight_layout()
-
-plt.show()
+```
 
 # OUTPUT
-![image](https://github.com/user-attachments/assets/341208c9-baf3-479e-9b14-e547d92d1371)
-
-
-
+![image](https://github.com/user-attachments/assets/9e89f0ae-ee1f-4014-a748-8071658a0e17)
+![image](https://github.com/user-attachments/assets/8daf9ec9-9734-40d7-8996-f41142939e22)
 
  
 # RESULT / CONCLUSIONS
 
+```
 1. Successfully simulated a simple spread spectrum modulation technique.
-
-
 2. Observed the randomization effect on the original data through the spread signal.
-
-
 3. Learned how spreading a signal increases its bandwidth and provides robustness against interference.
-
+```
